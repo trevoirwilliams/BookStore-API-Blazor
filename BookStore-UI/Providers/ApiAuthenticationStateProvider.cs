@@ -31,7 +31,7 @@ namespace BookStore_UI.Providers
                 }
                 var tokenContent = _tokenHandler.ReadJwtToken(savedToken);
                 var expiry = tokenContent.ValidTo;
-                if (expiry < DateTime.Now)
+                if(expiry < DateTime.Now)
                 {
                     await _localStorage.RemoveItemAsync("authToken");
                     return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
