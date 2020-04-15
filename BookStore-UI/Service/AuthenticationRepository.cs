@@ -51,7 +51,7 @@ namespace BookStore_UI.Service
             await _localStorage.SetItemAsync("LoginName", user.EmailAddress);
 
             await ((ApiAuthenticationStateProvider)_authenticationStateProvider)
-                .LoggedIn(user.EmailAddress);
+                .LoggedIn();
 
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("bearer", token.Token);

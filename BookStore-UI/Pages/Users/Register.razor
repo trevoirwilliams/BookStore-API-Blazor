@@ -6,54 +6,48 @@
 @inject IAuthenticationRepository _authRepo
 @inject NavigationManager _navMan
 
-    <div class="card">
-        <h3 class="card-title">Register Now</h3>
-        @if (isFailed)
-        {
-            <div class="alert alert-danger">
-                <p>Something went wrong with the registration attempt</p>
-            </div>
-        }
-        <div class="card-body">
-            <EditForm Model="Model" OnValidSubmit="HandleRegistration">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <InputText Id="email" class="form-control" @bind-Value="Model.EmailAddress" />
-                    <ValidationMessage For="@(() => Model.EmailAddress)" />
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <InputText Id="password" type="password" class="form-control" @bind-Value="Model.Password" />
-                    <ValidationMessage For="@(() => Model.Password)" />
-                </div>
-                <div class="form-group">
-                    <label for="confirmpassword">Confirm Password</label>
-                    <InputText Id="confirmpassword" type="password" class="form-control" @bind-Value="Model.ConfirmPassword" />
-                    <ValidationMessage For="@(() => Model.ConfirmPassword)" />
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Submit</button>
 
-            </EditForm>
+<h3 class="card-title">Register Now</h3>
+@if (!response)
+{
+    <ErrorMessage Message="Something went wrong with the registration attempt"/>
+}
+<div class="card-body">
+    <EditForm Model="Model" OnValidSubmit="HandleRegistration">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <InputText Id="email" class="form-control" @bind-Value="Model.EmailAddress" />
+            <ValidationMessage For="@(() => Model.EmailAddress)" />
         </div>
-    </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <InputText Id="password" type="password" class="form-control" @bind-Value="Model.Password" />
+            <ValidationMessage For="@(() => Model.Password)" />
+        </div>
+        <div class="form-group">
+            <label for="confirmpassword">Confirm Password</label>
+            <InputText Id="confirmpassword" type="password" class="form-control" @bind-Value="Model.ConfirmPassword" />
+            <ValidationMessage For="@(() => Model.ConfirmPassword)" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Register</button>
+
+    </EditForm>
+</div>
+
 
 @code {
     private RegistrationModel Model = new RegistrationModel();
-    bool isFailed = false;
+    bool response = true;
 
     private async Task HandleRegistration()
     {
-        var response = await _authRepo.Register(Model);
+        response = await _authRepo.Register(Model);
 
         if (response)
         {
             _navMan.NavigateTo("/login");
-        }
-        else
-        {
-            isFailed = true;
         }
     }
 }
