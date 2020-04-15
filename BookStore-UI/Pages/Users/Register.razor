@@ -8,7 +8,7 @@
 
     <div class="card">
         <h3 class="card-title">Register Now</h3>
-        @if (isFailed)
+        @if (!response)
         {
             <div class="alert alert-danger">
                 <p>Something went wrong with the registration attempt</p>
@@ -33,7 +33,7 @@
                     <InputText Id="confirmpassword" type="password" class="form-control" @bind-Value="Model.ConfirmPassword" />
                     <ValidationMessage For="@(() => Model.ConfirmPassword)" />
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                <button type="submit" class="btn btn-primary btn-block">Register</button>
 
             </EditForm>
         </div>
@@ -41,19 +41,15 @@
 
 @code {
     private RegistrationModel Model = new RegistrationModel();
-    bool isFailed = false;
+    bool response = true;
 
     private async Task HandleRegistration()
     {
-        var response = await _authRepo.Register(Model);
+        response = await _authRepo.Register(Model);
 
         if (response)
         {
             _navMan.NavigateTo("/login");
-        }
-        else
-        {
-            isFailed = true;
         }
     }
 }

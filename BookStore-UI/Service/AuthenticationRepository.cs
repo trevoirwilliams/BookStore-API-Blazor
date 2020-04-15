@@ -20,7 +20,8 @@ namespace BookStore_UI.Service
         private readonly IHttpClientFactory _client;
         private readonly ILocalStorageService _localStorage;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
-        public AuthenticationRepository(IHttpClientFactory client,
+
+        public AuthenticationRepository(IHttpClientFactory client, 
             ILocalStorageService localStorage,
             AuthenticationStateProvider authenticationStateProvider)
         {
@@ -32,7 +33,7 @@ namespace BookStore_UI.Service
         public async Task<bool> Login(LoginModel user)
         {
             var request = new HttpRequestMessage(HttpMethod.Post
-                , Endpoints.LoginEndpoint);
+               , Endpoints.LoginEndpoint);
             request.Content = new StringContent(JsonConvert.SerializeObject(user)
                 , Encoding.UTF8, "application/json");
 
@@ -43,15 +44,16 @@ namespace BookStore_UI.Service
             {
                 return false;
             }
+
             var content = await response.Content.ReadAsStringAsync();
+            var token =  JsonConvert.DeserializeObject<TokenResponse>(content);
 
-            var token = JsonConvert.DeserializeObject<TokenResponse>(content);
-
+            //Store Token
             await _localStorage.SetItemAsync("authToken", token.Token);
-            await _localStorage.SetItemAsync("LoginName", user.EmailAddress);
 
+            //Change auth state of app
             await ((ApiAuthenticationStateProvider)_authenticationStateProvider)
-                .LoggedIn(user.EmailAddress);
+                .LoggedIn();
 
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("bearer", token.Token);
@@ -62,9 +64,6 @@ namespace BookStore_UI.Service
         public async Task Logout()
         {
             await _localStorage.RemoveItemAsync("authToken");
-            await _localStorage.RemoveItemAsync("LoginName");
-            var client = _client.CreateClient();
-            client.DefaultRequestHeaders.Authorization = null;
             ((ApiAuthenticationStateProvider)_authenticationStateProvider)
                 .LoggedOut();
         }

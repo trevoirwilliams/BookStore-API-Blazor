@@ -2,12 +2,12 @@
 
 @using BookStore_UI.Contracts
 @inject IAuthenticationRepository _authRepo
-@inject NavigationManager _navMan
+@inject NavigationManager _navManager
 
 @code {
     protected override async Task OnInitializedAsync()
     {
         await _authRepo.Logout();
-        _navMan.NavigateTo("/");
+        _navManager.NavigateTo("/");
     }
 }

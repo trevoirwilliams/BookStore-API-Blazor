@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BookStore_UI.Providers
@@ -12,10 +12,14 @@ namespace BookStore_UI.Providers
     public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly ILocalStorageService _localStorage;
-        public ApiAuthenticationStateProvider(ILocalStorageService localStorage)
+        private readonly JwtSecurityTokenHandler _tokenHandler;
+        public ApiAuthenticationStateProvider(ILocalStorageService localStorage
+            , JwtSecurityTokenHandler tokenHandler)
         {
             _localStorage = localStorage;
+            _tokenHandler = tokenHandler;
         }
+
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
@@ -25,12 +29,18 @@ namespace BookStore_UI.Providers
                 {
                     return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
                 }
-                var claims = ParseClaims(savedToken).ToList();
-                var email = await _localStorage.GetItemAsync<string>("LoginName");
-                claims.Add(new Claim(ClaimTypes.Name, email));
-               
-                var user = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
+                var tokenContent = _tokenHandler.ReadJwtToken(savedToken);
+                var expiry = tokenContent.ValidTo;
+                if(expiry < DateTime.Now)
+                {
+                    await _localStorage.RemoveItemAsync("authToken");
+                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                }
 
+                //Get Claims from token and Build auth user object
+                var claims = ParseClaims(tokenContent);
+                var user = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
+                //return authenticted person
                 return new AuthenticationState(user);
             }
             catch (Exception)
@@ -39,11 +49,11 @@ namespace BookStore_UI.Providers
             }
         }
 
-        public async Task LoggedIn(string email)
+        public async Task LoggedIn()
         {
             var savedToken = await _localStorage.GetItemAsync<string>("authToken");
-            var claims = ParseClaims(savedToken).ToList();
-            claims.Add(new Claim(ClaimTypes.Name, email));
+            var tokenContent = _tokenHandler.ReadJwtToken(savedToken);
+            var claims = ParseClaims(tokenContent);
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
             var authState = Task.FromResult(new AuthenticationState(user));
             NotifyAuthenticationStateChanged(authState);
@@ -56,24 +66,11 @@ namespace BookStore_UI.Providers
             NotifyAuthenticationStateChanged(authState);
         }
 
-        private IEnumerable<Claim> ParseClaims(string token)
+        private IList<Claim> ParseClaims(JwtSecurityToken tokenContent)
         {
-            var claims = new List<Claim>();
-            var payload = token.Split('.')[1];
-            var jsonBytes = DecodeClaims(payload);
-            var keyValues = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-            claims.AddRange(keyValues.Select(q => new Claim(q.Key, q.Value.ToString())));
+            var claims = tokenContent.Claims.ToList();
+            claims.Add(new Claim(ClaimTypes.Name, tokenContent.Subject));
             return claims;
-        }
-
-        private byte[] DecodeClaims(string payload)
-        {
-            switch (payload.Length % 4)
-            {
-                case 2: payload += "=="; break;
-                case 3: payload += "="; break;
-            }
-            return Convert.FromBase64String(payload);
         }
     }
 }

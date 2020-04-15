@@ -4,8 +4,10 @@
         <AuthorizeRouteView  RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
     </Found>
     <NotFound>
-        <CascadingAuthenticationState Layout="@typeof(MainLayout)">
-            <p>Sorry, there's nothing at this address.</p>
+        <CascadingAuthenticationState>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
         </CascadingAuthenticationState>
     </NotFound>
 </Router>
