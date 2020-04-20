@@ -10,12 +10,13 @@
 }
 else
 {
-    <AuthorizeView Roles="Administrator">
-        <a href="/authors/create" class="btn btn-primary">
-            <span class="oi oi-plus"></span>
-            Create New Author
-        </a>
-    </AuthorizeView>
+<AuthorizeView Roles="Administrator">
+    <a href="/authors/create" class="btn btn-primary">
+        <span class="oi oi-plus"></span>
+        Create New Author
+    </a>
+    <br />
+</AuthorizeView>
     @if (Model.Count < 1)
     {
         <LoadingMessage Message="There are no authors in the data store.

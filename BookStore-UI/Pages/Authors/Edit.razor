@@ -2,16 +2,20 @@
 @attribute [Authorize(Roles = "Administrator")]
 @inject IAuthorRepository _repo
 @inject NavigationManager _navManager
-
+@inject IToastService _toastService
 <h3 class="card-title">Edit Author</h3>
 <hr />
 <br />
-@if (isFailed)
+@if (isSuccess)
 {
     <ErrorMessage Message="Somewthing Went Wrong With the Operation" />
 }
 
-@if (Model == null)
+@if (int.Parse(Id) < 1 || string.IsNullOrWhiteSpace(Id))
+{
+    <ErrorMessage Message="Invalid Selection. Please Try Again" />
+}
+else if (Model == null)
 {
     <LoadingMessage Message="Loading Author For Edit" />
 }
@@ -49,7 +53,7 @@ else
     public string Id { get; set; }
 
     private Author Model = new Author();
-    private bool isFailed = false;
+    private bool isSuccess = false;
     protected override async Task OnInitializedAsync()
     {
         int id = Convert.ToInt32(Id);
@@ -58,15 +62,13 @@ else
 
     private async Task EditAuthor()
     {
-        bool isSuccess = await _repo.Update(Endpoints.AuthorsEndpoint, Model, Model.Id);
+        isSuccess = await _repo.Update(Endpoints.AuthorsEndpoint, Model, Model.Id);
         if (isSuccess)
         {
+            _toastService.ShowWarning("Author Updated Successfully", "");
             BackToList();
         }
-        else
-        {
-            isFailed = true;
-        }
+
     }
 
     private void BackToList()

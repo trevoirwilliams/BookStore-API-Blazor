@@ -2,8 +2,8 @@
 @attribute [Authorize(Roles = "Administrator")]
 @inject IAuthorRepository _repo
 @inject NavigationManager _navManager
-
-<h3 class="card-title">Are You Sure Yout Want to Delete This Record?</h3>
+@inject IToastService _toastService
+<h3 class="card-title">Are You Sure You Want to Delete This Record?</h3>
 <hr />
 <br />
 @if (isFailed)
@@ -11,7 +11,11 @@
     <ErrorMessage Message="Somewthing Went Wrong WIth the Operation" />
 }
 
-@if (Model == null)
+@if (int.Parse(Id) < 1 || string.IsNullOrWhiteSpace(Id))
+{
+    <ErrorMessage Message="Invalid Selection. Please Try Again" />
+}
+else if (Model == null)
 {
     <LoadingMessage Message="Loading Author Details" />
 }
@@ -86,6 +90,7 @@ else
         bool isSuccess = await _repo.Delete(Endpoints.AuthorsEndpoint, Model.Id);
         if (isSuccess)
         {
+            _toastService.ShowError("Author Deleted Successfully", "");
             BackToList();
         }
         else
