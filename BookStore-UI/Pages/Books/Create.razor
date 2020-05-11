@@ -76,6 +76,7 @@
     private bool isSuccess = true;
     private bool isInvalidFileType = false;
     private string imageDataURL;
+    private MemoryStream msFile;
 
     protected override async Task OnInitializedAsync()
     {
@@ -92,7 +93,7 @@
                 var picId = Guid.NewGuid().ToString().Replace("-", "");
                 var picName = $"{picId}{ext}";
 
-                await _fileUpload.UploadFile(file, picName);
+                _fileUpload.UploadFile(file, msFile, picName);
 
                 Model.Image = picName;
             }
@@ -114,11 +115,11 @@
             var name = file.Name;
             if (name.Contains("jpg") || name.Contains("png") || name.Contains("jpeg"))
             {
-                var ms = new MemoryStream();
-                await file.Data.CopyToAsync(ms);
+                msFile = new MemoryStream();
+                await file.Data.CopyToAsync(msFile);
 
                 var reader = new StreamReader(file.Data);
-                var imageBase64Data = Convert.ToBase64String(ms.ToArray());
+                var imageBase64Data = Convert.ToBase64String(msFile.ToArray());
                 imageDataURL = string.Format("data:image/png;base64,{0}", imageBase64Data);
                 isInvalidFileType = false;
             }

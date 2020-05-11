@@ -47,5 +47,23 @@ namespace BookStore_UI.Service
                 throw;
             }
         }
+        public void UploadFile(IFileListEntry file, MemoryStream msFile, string picName)
+        {
+            try
+            {
+                var path = $"{_env.WebRootPath}\\uploads\\{picName}";
+
+                using (FileStream fs = new FileStream(path, FileMode.Create))
+                {
+                    msFile.WriteTo(fs);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
     }
 }
