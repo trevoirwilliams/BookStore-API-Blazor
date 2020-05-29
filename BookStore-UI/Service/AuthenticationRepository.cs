@@ -19,11 +19,11 @@ namespace BookStore_UI.Service
     {
         private readonly IHttpClientFactory _client;
         private readonly ILocalStorageService _localStorage;
-        private readonly AuthenticationStateProvider _authenticationStateProvider;
+        private readonly ApiAuthenticationStateProvider _authenticationStateProvider;
 
         public AuthenticationRepository(IHttpClientFactory client, 
             ILocalStorageService localStorage,
-            AuthenticationStateProvider authenticationStateProvider)
+            ApiAuthenticationStateProvider authenticationStateProvider)
         {
             _client = client;
             _localStorage = localStorage;
@@ -52,7 +52,7 @@ namespace BookStore_UI.Service
             await _localStorage.SetItemAsync("authToken", token.Token);
 
             //Change auth state of app
-            await ((ApiAuthenticationStateProvider)_authenticationStateProvider)
+            await _authenticationStateProvider
                 .LoggedIn();
 
             client.DefaultRequestHeaders.Authorization =
@@ -64,7 +64,7 @@ namespace BookStore_UI.Service
         public async Task Logout()
         {
             await _localStorage.RemoveItemAsync("authToken");
-            ((ApiAuthenticationStateProvider)_authenticationStateProvider)
+            _authenticationStateProvider
                 .LoggedOut();
         }
 

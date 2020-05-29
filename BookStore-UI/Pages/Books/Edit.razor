@@ -144,7 +144,7 @@ else
                 await file.Data.CopyToAsync(msFile);
 
                 var reader = new StreamReader(file.Data);
-                var imageBase64Data = Convert.ToBase64String(ms.ToArray());
+                var imageBase64Data = Convert.ToBase64String(msFile.ToArray());
                 imageDataURL = string.Format("data:image/png;base64,{0}", imageBase64Data);
                 isInvalidFileType = false;
             }
