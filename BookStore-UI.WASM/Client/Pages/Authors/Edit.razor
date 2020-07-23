@@ -1,6 +1,7 @@
 ﻿@page "/authors/edit/{Id}"
-@attribute [Authorize(Roles = "Administrator")]
-@inject IAuthorRepository _repo
+@*@attribute [Authorize(Roles = "Administrator")]
+    @inject IAuthorRepository _repo*@
+@inject HttpClient _client
 @inject NavigationManager _navManager
 @inject IToastService _toastService
 <h3 class="card-title">Edit Author</h3>
@@ -57,18 +58,29 @@ else
     protected override async Task OnInitializedAsync()
     {
         int id = Convert.ToInt32(Id);
-        Model = await _repo.Get(Endpoints.AuthorsEndpoint, id);
+        try
+        {
+            Model = await _client.GetFromJsonAsync<Author>($"api/authors/{id}");
+        }
+        catch (Exception)
+        {
+            isSuccess = false;
+        }
+
     }
 
     private async Task EditAuthor()
     {
-        isSuccess = await _repo.Update(Endpoints.AuthorsEndpoint, Model, Model.Id);
-        if (isSuccess)
+        try
         {
-            _toastService.ShowWarning("Author Updated Successfully", "");
+            await _client.PutAsJsonAsync<Author>($"api/authors/{Model.Id}", Model);
+            _toastService.ShowWarning("Author Edited Successfully", "");
             BackToList();
         }
-
+        catch (Exception)
+        {
+            isSuccess = false;
+        }
     }
 
     private void BackToList()

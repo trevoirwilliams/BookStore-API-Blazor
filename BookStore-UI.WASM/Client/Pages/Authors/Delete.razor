@@ -1,6 +1,7 @@
 ﻿@page "/authors/delete/{Id}"
-@attribute [Authorize(Roles = "Administrator")]
-@inject IAuthorRepository _repo
+@*@attribute [Authorize(Roles = "Administrator")]
+@inject IAuthorRepository _repo*@
+@inject HttpClient _client
 @inject NavigationManager _navManager
 @inject IToastService _toastService
 <h3 class="card-title">Are You Sure You Want to Delete This Record?</h3>
@@ -82,16 +83,28 @@ else
     protected override async Task OnInitializedAsync()
     {
         int id = Convert.ToInt32(Id);
-        Model = await _repo.Get(Endpoints.AuthorsEndpoint, id);
+        try
+        {
+            Model = await _client.GetFromJsonAsync<Author>($"api/authors/{id}");
+        }
+        catch (Exception)
+        {
+            isSuccess = false;
+        }
+
     }
 
     private async Task DeleteAuthor()
     {
-        isSuccess = await _repo.Delete(Endpoints.AuthorsEndpoint, Model.Id);
-        if (isSuccess)
+        try
         {
+            await _client.DeleteAsync($"api/authors/{Model.Id}");
             _toastService.ShowError("Author Deleted Successfully", "");
             BackToList();
+        }
+        catch (Exception)
+        {
+            isSuccess = false;
         }
     }
 
