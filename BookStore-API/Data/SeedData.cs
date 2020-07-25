@@ -20,7 +20,7 @@ namespace BookStore_API.Data
             {
                 var user = new IdentityUser
                 {
-                    UserName = "admin",
+                    UserName = "admin@bookstore.com",
                     Email = "admin@bookstore.com"
                 };
                 var result = await userManager.CreateAsync(user, "P@ssword1");
@@ -33,7 +33,7 @@ namespace BookStore_API.Data
             {
                 var user = new IdentityUser
                 {
-                    UserName = "customer1",
+                    UserName = "customer1@gmail.com",
                     Email = "customer1@gmail.com"
                 };
                 var result = await userManager.CreateAsync(user, "P@ssword1");
@@ -46,7 +46,7 @@ namespace BookStore_API.Data
             {
                 var user = new IdentityUser
                 {
-                    UserName = "customer2",
+                    UserName = "customer2@gmail.com",
                     Email = "customer2@gmail.com"
                 };
                 var result = await userManager.CreateAsync(user, "P@ssword1");

@@ -1,0 +1,141 @@
+﻿@page "/books/create/"
+@attribute [Authorize(Roles = "Administrator")]
+
+@inject IBookRepository _repo
+@inject IAuthorRepository _authorRepo
+@inject NavigationManager _navManager
+@inject IToastService _toastService
+
+<h3>Create Book</h3>
+<hr />
+<br />
+@if (!isSuccess)
+{
+    <ErrorMessage Message="Something Went Wrong With the Operation" />
+}
+
+<EditForm Model="Model" OnValidSubmit="HandleCreate">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="title">Book Title</label>
+        <InputText @bind-Value="Model.Title" class="form-control" id="title" />
+    </div>
+    <div class="form-group">
+        <label for="isbn">ISBN</label>
+        <InputText @bind-Value="Model.Isbn" class="form-control" id="isbn" />
+    </div>
+    <div class="form-group">
+        <label for="price">Price</label>
+        <InputNumber @bind-Value="Model.Price" class="form-control" id="price" />
+    </div>
+    <div class="form-group">
+        <label for="author">Authors</label>
+        <select @bind="Model.AuthorId" class="form-control" id="author">
+            <option value="">-- Select Author --</option>
+            @if (Authors != null)
+            {
+                foreach (var author in Authors)
+                {
+                    <option value="@author.Id">@author.Firstname @author.Lastname</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="summary">Summary</label>
+        <InputTextArea @bind-Value="Model.Summary" class="form-control" id="summary" />
+    </div>
+    <div class="form-group">
+        <label for="bookcover">Book Cover Photo</label>
+        <InputFile OnChange="HandleFileSelection" />
+        @if (isInvalidFileType)
+        {
+            <ErrorMessage Message="Please remove the invalid file type and select as new image, or leave this field blank" />
+        }
+        @if (!string.IsNullOrWhiteSpace(imageDataURL))
+        {
+            <img src="@imageDataURL" style="height:100px;width:100px" />
+        }
+    </div>
+    <button class="btn btn-primary" type="submit">
+        <span class="oi oi-pencil"></span>
+        Create Book
+    </button>
+    <button @onclick="BackToList" class="btn btn-outline-secondary">
+        <span class="oi oi-media-skip-backward"></span>
+        Back To List
+    </button>
+</EditForm>
+
+@code {
+    private Book Model = new Book();
+    private IList<Author> Authors;
+    private IFileListEntry file;
+    private bool isSuccess = true;
+    private bool isInvalidFileType = false;
+    private string imageDataURL;
+    private MemoryStream msFile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Authors = await _authorRepo.Get(Endpoints.AuthorsEndpoint);
+    }
+
+    private async Task HandleCreate()
+    {
+        if (!isInvalidFileType)
+        {
+            if (file != null)
+            {
+                var ext = Path.GetExtension(file.Name);
+                var picId = Guid.NewGuid().ToString().Replace("-", "");
+                var picName = $"{picId}{ext}";
+
+                Model.Image = picName;
+                Model.File = Convert.ToBase64String(msFile.ToArray());
+            }
+
+            isSuccess = await _repo.Create(Endpoints.BooksEndpoint, Model);
+            if (isSuccess)
+            {
+                _toastService.ShowSuccess("Book Created Successfully", "");
+                BackToList();
+            }
+        }
+    }
+
+    private async Task HandleFileSelection(IFileListEntry[] files)
+    {
+        file = files.FirstOrDefault();
+        if (file != null)
+        {
+            var ext = Path.GetExtension(file.Name);
+            if (ext.Contains("jpg") || ext.Contains("png") || ext.Contains("jpeg"))
+            {
+                msFile = new MemoryStream();
+                await file.Data.CopyToAsync(msFile);
+
+                var reader = new StreamReader(file.Data);
+                var imageBase64Data = Convert.ToBase64String(msFile.ToArray());
+                imageDataURL = string.Format("data:image/png;base64,{0}", imageBase64Data);
+                isInvalidFileType = false;
+            }
+            else
+            {
+                isInvalidFileType = true;
+                imageDataURL = string.Empty;
+            }
+        }
+        else
+        {
+            isInvalidFileType = false;
+        }
+    }
+
+
+    private void BackToList()
+    {
+        _navManager.NavigateTo("/books/");
+    }
+}

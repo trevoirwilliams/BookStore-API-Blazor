@@ -1,0 +1,120 @@
+﻿@page "/books/delete/{Id}"
+@attribute [Authorize(Roles = "Administrator")]
+
+@inject IBookRepository _repo
+@inject NavigationManager _navManager
+@inject IFileUpload _fileUpload
+@inject IToastService _toastService
+
+<h3>Are You Sure You Want to Delete This Record?</h3>
+<hr />
+<br />
+@if (!isSuccess)
+{
+    <ErrorMessage Message="Something Went Wrong With the Operation" />
+}
+
+
+@if (int.Parse(Id) < 1 || string.IsNullOrWhiteSpace(Id))
+{
+    <ErrorMessage Message="Invalid Selection. Please Try Again" />
+}
+else if (Model == null)
+{
+    <LoadingMessage Message="Loading Book Details" />
+}
+else
+{
+    <div class="row">
+        <div class="col-6">
+            <table class="table table-responsive">
+                <tr>
+                    <td>
+                        <strong>Title</strong>
+                    </td>
+                    <td>@Model.Title</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Author</strong>
+                    </td>
+                    <td>
+                        @if (Model.Author == null)
+                        {
+                            <span class="text-muted">No Author Recorded</span>
+                        }
+                        else
+                        {
+                            <a href="/authors/view/@Model.AuthorId">@Model.Author.Firstname @Model.Author.Lastname</a>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Summary</strong>
+                    </td>
+                    <td>@Model.Summary</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Published Year</strong>
+                    </td>
+                    <td>@Model.Year</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>ISBN</strong>
+                    </td>
+                    <td>@Model.Isbn</td>
+                </tr>
+
+            </table>
+        </div>
+        <div class="col-4">
+            <img src="uploads/@Model.Image" style="height:300px; width:300px" />
+            <h3 class="text-center text-info">@string.Format("{0:C}", Model.Price)</h3>
+        </div>
+    </div>
+}
+
+<button @onclick="DeleteBook" class="btn btn-danger">
+    <span class="oi oi-delete"></span>
+    Delete Book
+</button>
+
+<button @onclick="BackToList" class="btn btn-outline-secondary">
+    <span class="oi oi-media-skip-backward"></span>
+    Back To List
+</button>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    private Book Model = new Book();
+    private bool isSuccess = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        int id = Convert.ToInt32(Id);
+        Model = await _repo.Get(Endpoints.BooksEndpoint, id);
+    }
+
+    private async Task DeleteBook()
+    {
+        _fileUpload.RemoveFile(Model.Image);
+        isSuccess = await _repo.Delete(Endpoints.BooksEndpoint, Model.Id);
+        if (isSuccess)
+        {
+            _toastService.ShowError("Book Deleted Successfully", "");
+            BackToList();
+        }
+
+    }
+
+    private void BackToList()
+    {
+        _navManager.NavigateTo("/books/");
+    }
+
+}
