@@ -10,8 +10,11 @@ using System.Threading.Tasks;
 namespace BookStore_UI.WASM.Providers
 {
     public class ApiAuthenticationStateProvider : AuthenticationStateProvider
+
     {
         private readonly ILocalStorageService _localStorage;
+
+        private readonly JwtSecurityTokenHandler _tokenHandler = new JwtSecurityTokenHandler();
 
         public ApiAuthenticationStateProvider(ILocalStorageService localStorage)
         {
@@ -22,7 +25,6 @@ namespace BookStore_UI.WASM.Providers
         {
             try
             {
-                var _tokenHandler = new JwtSecurityTokenHandler();
 
                 var savedToken = await _localStorage.GetItemAsync<string>("authToken");
                 if (string.IsNullOrWhiteSpace(savedToken))
@@ -51,8 +53,6 @@ namespace BookStore_UI.WASM.Providers
 
         public async Task LoggedIn()
         {
-            var _tokenHandler = new JwtSecurityTokenHandler();
-
             var savedToken = await _localStorage.GetItemAsync<string>("authToken");
             var tokenContent = _tokenHandler.ReadJwtToken(savedToken);
             var claims = ParseClaims(tokenContent);
