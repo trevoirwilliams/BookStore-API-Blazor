@@ -22,6 +22,7 @@ using BookStore_API.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Net.Http.Headers;
 
 namespace BookStore_API
 {
@@ -44,7 +45,8 @@ namespace BookStore_API
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddCors(o => {
+            services.AddCors(o =>
+            {
                 o.AddPolicy("CorsPolicy",
                     builder => builder.AllowAnyOrigin()
                     .AllowAnyMethod()
@@ -117,6 +119,11 @@ namespace BookStore_API
 
             app.UseHttpsRedirection();
 
+            //app.UseCors(policy =>
+            //    policy.WithOrigins("http://localhost:57471", "https://localhost:44317")
+            //    .AllowAnyMethod()
+            //    .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
+            //    .AllowCredentials());
             app.UseCors("CorsPolicy");
 
             SeedData.Seed(userManager, roleManager).Wait();
