@@ -29,6 +29,9 @@ namespace BookStore_UI.WASM
             _ = new JwtHeader();
             _ = new JwtPayload();
             
+            builder.RootComponents.Add<App>("#app");
+            builder.Services.AddScoped(sp => new HttpClient
+                { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddBlazoredToast();
             builder.Services.AddScoped<ApiAuthenticationStateProvider>();
