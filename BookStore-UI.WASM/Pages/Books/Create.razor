@@ -71,11 +71,11 @@
 @code {
     private Book Model = new Book();
     private IList<Author> Authors;
-    private IBrowserFile file;
+    private IFileListEntry file;
     private bool isSuccess = true;
     private bool isInvalidFileType = false;
     private string imageDataURL;
-    private Stream msFile;
+    private MemoryStream msFile;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,9 +93,7 @@
                 var picName = $"{picId}{ext}";
 
                 Model.Image = picName;
-                var buffer = new byte[file.Size];
-                await file.OpenReadStream().ReadAsync(buffer);
-                Model.File = Convert.ToBase64String(buffer);
+                Model.File = Convert.ToBase64String(msFile.ToArray());
             }
 
             isSuccess = await _repo.Create(Endpoints.BooksEndpoint, Model);
@@ -107,23 +105,19 @@
         }
     }
 
-    private async Task HandleFileSelection(InputFileChangeEventArgs e)
+    private async Task HandleFileSelection(IFileListEntry[] files)
     {
-        file = e.File;
+        file = files.FirstOrDefault();
         if (file != null)
         {
             var ext = Path.GetExtension(file.Name);
             if (ext.Contains("jpg") || ext.Contains("png") || ext.Contains("jpeg"))
             {
-                msFile = file.OpenReadStream();
+                msFile = new MemoryStream();
+                await file.Data.CopyToAsync(msFile);
 
-                var resizedImageFile = await file.RequestImageFileAsync("image/png",
-            100, 100);
-
-                var buffer = new byte[resizedImageFile.Size];
-                await resizedImageFile.OpenReadStream().ReadAsync(buffer);
-
-                var imageBase64Data = Convert.ToBase64String(buffer);
+                var reader = new StreamReader(file.Data);
+                var imageBase64Data = Convert.ToBase64String(msFile.ToArray());
                 imageDataURL = string.Format("data:image/png;base64,{0}", imageBase64Data);
                 isInvalidFileType = false;
             }
