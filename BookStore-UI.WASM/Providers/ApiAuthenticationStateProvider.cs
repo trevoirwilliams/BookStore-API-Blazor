@@ -25,7 +25,6 @@ namespace BookStore_UI.WASM.Providers
         {
             try
             {
-
                 var savedToken = await _localStorage.GetItemAsync<string>("authToken");
                 if (string.IsNullOrWhiteSpace(savedToken))
                 {

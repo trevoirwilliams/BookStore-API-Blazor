@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>BookStore_UI</RootNamespace>
+    <UserSecretsId>aace695d-a251-4b7e-af55-91be3698dc10</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

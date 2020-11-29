@@ -4,10 +4,11 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>aspnet-BookStore_API-14684779-B04F-4213-8B52-B207AAAE0E74</UserSecretsId>
     <RootNamespace>BookStore_API</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\Trevoir\source\repos\BookStore-API\BookStore-API\BookStore-API.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\BookStore-API.xml</DocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 
