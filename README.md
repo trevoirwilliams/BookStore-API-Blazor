@@ -1,4 +1,4 @@
-# BookStore-API
+# BookStore API and Blazor Application
 .NET Core 3.1 Book Store Web API for educational purposes. 
 By doing this course, you would have:
 - Build a fully data driven REST Web API with Core 3.1 using cutting edge technology
