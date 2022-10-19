@@ -6,6 +6,8 @@ using AutoMapper;
 using BookStore_API.Contracts;
 using BookStore_API.Data;
 using BookStore_API.DTOs;
+using BookStore_API.Features.Book.Queries.FindAllBooks;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -25,16 +27,19 @@ namespace BookStore_API.Controllers
         private readonly ILoggerService _logger;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _env;
+        private readonly IMediator _mediator;
 
         public BooksController(IBookRepository bookRepository,
             ILoggerService logger,
             IWebHostEnvironment env,
-            IMapper mapper)
+            IMapper mapper,
+            IMediator mediator)
         {
             _bookRepository = bookRepository;
             _logger = logger;
             _mapper = mapper;
             _env = env;
+            _mediator = mediator;
         }
 
         private string GetImagePath(string fileName) 
@@ -54,8 +59,8 @@ namespace BookStore_API.Controllers
             try
             {
                 _logger.LogInfo($"{location}: Attempted Call");
-                var books = await _bookRepository.FindAll();
-                var response = _mapper.Map<IList<BookDTO>>(books);
+
+                var response = await _mediator.Send(new FindAllBooksQueryRequest());
                 foreach (var item in response)
                 {
                     if (!string.IsNullOrEmpty(item.Image))

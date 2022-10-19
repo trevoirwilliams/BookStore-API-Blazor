@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29920.165
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStore-API", "BookStore-API\BookStore-API.csproj", "{3CDD9FFB-CBFA-4657-A20B-4ED757636A4C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStore-UI", "BookStore-UI\BookStore-UI.csproj", "{71ED9251-8F36-4E34-9837-72891C952118}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStore-UI.WASM", "BookStore-UI.WASM\BookStore-UI.WASM.csproj", "{B43AC6BA-5840-4950-AE38-F68A9D3436AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStore-UI.WASM", "BookStore-UI.WASM\BookStore-UI.WASM.csproj", "{B43AC6BA-5840-4950-AE38-F68A9D3436AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
