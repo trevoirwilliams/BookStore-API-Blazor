@@ -7,6 +7,7 @@ using BookStore_API.Contracts;
 using BookStore_API.Data;
 using BookStore_API.DTOs;
 using BookStore_API.Features.Book.Queries.FindAllBooks;
+using BookStore_API.Features.Book.Queries.FindBookById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -58,9 +59,7 @@ namespace BookStore_API.Controllers
             var location = GetControllerActionNames();
             try
             {
-                _logger.LogInfo($"{location}: Attempted Call");
-
-                var response = await _mediator.Send(new FindAllBooksQueryRequest());
+                var response = await _mediator.Send(new FindAllBooksQueryRequest(location));
                 foreach (var item in response)
                 {
                     if (!string.IsNullOrEmpty(item.Image))
@@ -91,28 +90,21 @@ namespace BookStore_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetBook(int id)
         {
+
             var location = GetControllerActionNames();
+
             try
             {
-                _logger.LogInfo($"{location}: Attempted Call for id: {id}");
-                var book = await _bookRepository.FindById(id);
-                if(book == null)
-                {
-                    _logger.LogWarn($"{location}: Failed to retrieve record with id: {id}");
-                    return NotFound();
-                }
-                var response = _mapper.Map<BookDTO>(book);
+                var response = await _mediator.Send(new FindBookByIdQueryRequest(id, location));
                 if(!string.IsNullOrEmpty(response.Image))
                 {
-                    var imgPath = GetImagePath(book.Image);
+                    var imgPath = GetImagePath(response.Image);
                     if (System.IO.File.Exists(imgPath))
                     {
                         byte[] imgBytes = System.IO.File.ReadAllBytes(imgPath);
                         response.File = Convert.ToBase64String(imgBytes);
                     }
                 }
-
-                _logger.LogInfo($"{location}: Successfully got record with id: {id}");
                 return Ok(response);
             }
             catch (Exception e)

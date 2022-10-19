@@ -2,6 +2,7 @@
 using BookStore_API.Data;
 using BookStore_API.DTOs;
 using BookStore_API.Features.Book.Queries.FindAllBooks;
+using BookStore_API.Features.Book.Queries.FindBookById;
 
 namespace BookStore_API.Mappings
 {
@@ -19,6 +20,7 @@ namespace BookStore_API.Mappings
 
             // For CQRS
             CreateMap<Book, FindAllBooksQueryResponse>();
+            CreateMap<Book, FindBookByIdQueryResponse>();
         }
     }
 }
